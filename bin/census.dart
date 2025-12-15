@@ -4,6 +4,7 @@ import 'package:grimreach_api/messages.dart';
 import 'package:grimreach_api/message_codec.dart';
 import 'package:grimreach_api/world_state.dart';
 import 'package:grimreach_api/zone.dart';
+import 'package:grimreach_api/entity_type.dart';
 
 void main() async {
   try {
@@ -28,13 +29,21 @@ void main() async {
 
             int eSafe = 0;
             int eWild = 0;
+            int npc = 0;
+            int res = 0;
+            int str = 0;
+
             for (final e in state.entities) {
               if (e.zone == Zone.safe) eSafe++;
               if (e.zone == Zone.wilderness) eWild++;
+
+              if (e.type == EntityType.npc) npc++;
+              if (e.type == EntityType.resource) res++;
+              if (e.type == EntityType.structure) str++;
             }
 
             print(
-              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild)',
+              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str)',
             );
           }
         }
