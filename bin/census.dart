@@ -115,6 +115,19 @@ void main() async {
             if (totalProximities > 0) {
               print('Census: Total proximities this tick: $totalProximities');
             }
+
+            // Cluster Census (Phase 017)
+            if (state.largestClusterSize > 0) {
+              print(
+                'Census: Largest cluster: ${state.largestClusterSize} entities',
+              );
+              if (state.zoneClusterCounts.isNotEmpty) {
+                final summary = state.zoneClusterCounts.entries
+                    .map((e) => '${e.key}: ${e.value}')
+                    .join(', ');
+                print('Census: Clusters by zone: $summary');
+              }
+            }
           }
         }
       },
