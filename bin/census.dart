@@ -13,6 +13,9 @@ void main() async {
 
     print('Census: Connected to server');
 
+    // Census State
+    Set<String> previousEntityIds = {};
+
     socket.listen(
       (data) {
         if (data is String) {
@@ -33,7 +36,10 @@ void main() async {
             int res = 0;
             int str = 0;
 
+            final currentIds = <String>{};
+
             for (final e in state.entities) {
+              currentIds.add(e.id);
               if (e.zone == Zone.safe) eSafe++;
               if (e.zone == Zone.wilderness) eWild++;
 
@@ -42,8 +48,13 @@ void main() async {
               if (e.type == EntityType.structure) str++;
             }
 
+            final despawnedCount = previousEntityIds
+                .difference(currentIds)
+                .length;
+            previousEntityIds = currentIds;
+
             print(
-              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str)',
+              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str), Despawned: $despawnedCount',
             );
           }
         }
