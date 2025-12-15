@@ -15,6 +15,8 @@ void main() async {
     final lastMorale = <Faction, double>{}; // Faction -> Previous Score
     final trendDirection =
         <Faction, int>{}; // 1 = rising, -1 = falling, 0 = stable
+    final saturationDuration =
+        <String, int>{}; // Zone -> Ticks in non-normal state
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -218,6 +220,25 @@ void main() async {
                   );
                 }
               });
+            }
+
+            // Zone Saturation (Phase 026)
+            final saturationSummary = <String>[];
+            state.zoneSaturation.forEach((zone, stateStr) {
+              if (stateStr != 'normal') {
+                saturationDuration[zone] = (saturationDuration[zone] ?? 0) + 1;
+                saturationSummary.add(
+                  '$zone($stateStr, ${saturationDuration[zone]}t)',
+                );
+              } else {
+                saturationDuration[zone] = 0;
+              }
+            });
+
+            if (saturationSummary.isNotEmpty) {
+              print(
+                'Census: Saturation Alert: ${saturationSummary.join(', ')}',
+              );
             }
 
             // Shift Volatility Census (Phase 022)
