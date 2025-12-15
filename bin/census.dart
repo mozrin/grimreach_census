@@ -151,6 +151,15 @@ void main() async {
               );
             }
 
+            // Shift Volatility Census (Phase 022)
+            if (state.recentShifts.isNotEmpty) {
+              print(
+                'Census: ${state.recentShifts.length} territory shifts occurred this tick!',
+              );
+              // Optional: detail
+              // print('Census: Shifts in: ${state.recentShifts.join(", ")}');
+            }
+
             // Territory Census (Phase 020)
             if (state.zoneControl.isNotEmpty) {
               final summary = state.zoneControl.entries
