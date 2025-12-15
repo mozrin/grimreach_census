@@ -16,6 +16,7 @@ void main() async {
     // Census State
     Set<String> previousEntityIds = {};
     Map<String, Zone> previousPlayerZones = {};
+    Map<String, Zone> previousEntityZones = {};
 
     socket.listen(
       (data) {
@@ -61,6 +62,9 @@ void main() async {
 
             final currentIds = <String>{};
 
+            int roamSafeToWild = 0;
+            int roamWildToSafe = 0;
+
             for (final e in state.entities) {
               currentIds.add(e.id);
               if (e.zone == Zone.safe) eSafe++;
@@ -69,6 +73,24 @@ void main() async {
               if (e.type == EntityType.npc) npc++;
               if (e.type == EntityType.resource) res++;
               if (e.type == EntityType.structure) str++;
+
+              if (previousEntityZones.containsKey(e.id)) {
+                final oldZone = previousEntityZones[e.id];
+                if (oldZone != e.zone) {
+                  if (oldZone == Zone.safe && e.zone == Zone.wilderness)
+                    roamSafeToWild++;
+                  if (oldZone == Zone.wilderness && e.zone == Zone.safe)
+                    roamWildToSafe++;
+                }
+              }
+              previousEntityZones[e.id] = e.zone;
+            }
+            previousEntityZones.removeWhere((k, v) => !currentIds.contains(k));
+
+            if (roamSafeToWild > 0 || roamWildToSafe > 0) {
+              print(
+                'Census: Roaming - Safe->Wild: $roamSafeToWild, Wild->Safe: $roamWildToSafe',
+              );
             }
 
             final despawnedCount = previousEntityIds
