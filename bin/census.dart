@@ -5,6 +5,7 @@ import 'package:grimreach_api/message_codec.dart';
 import 'package:grimreach_api/world_state.dart';
 import 'package:grimreach_api/zone.dart';
 import 'package:grimreach_api/entity_type.dart';
+import 'package:grimreach_api/faction.dart';
 
 void main() async {
   try {
@@ -30,9 +31,13 @@ void main() async {
             int flowSafeToWild = 0;
             int flowWildToSafe = 0;
 
+            final factionCounts = <Faction, int>{};
+
             for (final p in state.players) {
               if (p.zone == Zone.safe) safeCount++;
               if (p.zone == Zone.wilderness) wildCount++;
+
+              factionCounts[p.faction] = (factionCounts[p.faction] ?? 0) + 1;
 
               if (previousPlayerZones.containsKey(p.id)) {
                 final oldZone = previousPlayerZones[p.id];
@@ -74,6 +79,8 @@ void main() async {
               if (e.type == EntityType.resource) res++;
               if (e.type == EntityType.structure) str++;
 
+              factionCounts[e.faction] = (factionCounts[e.faction] ?? 0) + 1;
+
               if (previousEntityZones.containsKey(e.id)) {
                 final oldZone = previousEntityZones[e.id];
                 if (oldZone != e.zone) {
@@ -106,6 +113,14 @@ void main() async {
             print(
               'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str), Despawned: $despawnedCount, Respawned: $respawnedCount',
             );
+
+            // Faction Census (Phase 019)
+            if (factionCounts.isNotEmpty) {
+              final summary = factionCounts.entries
+                  .map((e) => '${e.key.name}: ${e.value}')
+                  .join(', ');
+              print('Census: Faction Distribution: $summary');
+            }
 
             // Proximity Census
             int totalProximities = 0;
