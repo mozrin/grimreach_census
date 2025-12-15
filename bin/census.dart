@@ -9,6 +9,14 @@ import 'package:grimreach_api/faction.dart';
 
 void main() async {
   try {
+    // Persistent State for Trends (Phase 023)
+    final moraleTrendDuration =
+        <Faction, int>{}; // Faction -> Ticks in current trend
+    final lastMorale = <Faction, double>{}; // Faction -> Previous Score
+    final trendDirection =
+        <Faction, int>{}; // 1 = rising, -1 = falling, 0 = stable
+
+    // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
     final codec = MessageCodec();
 
@@ -150,6 +158,38 @@ void main() async {
                 'Census: Group Stats - Count: ${state.groupCount}, Avg Size: ${state.averageGroupSize.toStringAsFixed(1)}',
               );
             }
+
+            // Morale Trends (Phase 023)
+            state.factionMorale.forEach((faction, score) {
+              final prevScore = lastMorale[faction] ?? 50.0;
+              final diff = score - prevScore;
+
+              int currentDir = 0;
+              if (diff > 0)
+                currentDir = 1;
+              else if (diff < 0)
+                currentDir = -1;
+
+              final lastDir = trendDirection[faction] ?? 0;
+
+              if (currentDir != 0 && currentDir == lastDir) {
+                moraleTrendDuration[faction] =
+                    (moraleTrendDuration[faction] ?? 0) + 1;
+              } else {
+                moraleTrendDuration[faction] = 1; // New trend or stable
+              }
+
+              trendDirection[faction] = currentDir;
+              lastMorale[faction] = score;
+
+              // Log if significant trend
+              if (moraleTrendDuration[faction]! > 2 && currentDir != 0) {
+                String dirStr = currentDir > 0 ? 'Rising' : 'Falling';
+                print(
+                  'Census: Morale Trend: ${faction.name} $dirStr for ${moraleTrendDuration[faction]} ticks (Current: ${score.toStringAsFixed(1)})',
+                );
+              }
+            });
 
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
