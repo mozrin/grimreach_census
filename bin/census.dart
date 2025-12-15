@@ -51,10 +51,13 @@ void main() async {
             final despawnedCount = previousEntityIds
                 .difference(currentIds)
                 .length;
+            final respawnedCount = currentIds
+                .difference(previousEntityIds)
+                .length;
             previousEntityIds = currentIds;
 
             print(
-              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str), Despawned: $despawnedCount',
+              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str), Despawned: $despawnedCount, Respawned: $respawnedCount',
             );
           }
         }
