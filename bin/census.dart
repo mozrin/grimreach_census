@@ -3,6 +3,7 @@ import 'package:grimreach_api/protocol.dart';
 import 'package:grimreach_api/messages.dart';
 import 'package:grimreach_api/message_codec.dart';
 import 'package:grimreach_api/world_state.dart';
+import 'package:grimreach_api/zone.dart';
 
 void main() async {
   try {
@@ -17,12 +18,17 @@ void main() async {
           final msg = codec.decode(data);
           if (msg.type == Protocol.state) {
             final state = WorldState.fromJson(msg.data);
+
+            int safeCount = 0;
+            int wildCount = 0;
+            for (final p in state.players) {
+              if (p.zone == Zone.safe) safeCount++;
+              if (p.zone == Zone.wilderness) wildCount++;
+            }
+
             print(
-              'Census: World update - P: ${state.players.length}, E: ${state.entities.length}',
+              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount)',
             );
-            // In real implementation we'd run forever, for testing we might want to exit after receiving some.
-            // But instructions say "runs cleanly with a heartbeat world broadcast".
-            // I'll leave it running, but for verification I'll kill it manually.
           }
         }
       },
