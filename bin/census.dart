@@ -77,10 +77,12 @@ void main() async {
               if (previousEntityZones.containsKey(e.id)) {
                 final oldZone = previousEntityZones[e.id];
                 if (oldZone != e.zone) {
-                  if (oldZone == Zone.safe && e.zone == Zone.wilderness)
+                  if (oldZone == Zone.safe && e.zone == Zone.wilderness) {
                     roamSafeToWild++;
-                  if (oldZone == Zone.wilderness && e.zone == Zone.safe)
+                  }
+                  if (oldZone == Zone.wilderness && e.zone == Zone.safe) {
                     roamWildToSafe++;
+                  }
                 }
               }
               previousEntityZones[e.id] = e.zone;
@@ -104,6 +106,15 @@ void main() async {
             print(
               'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild), Types (N: $npc, R: $res, S: $str), Despawned: $despawnedCount, Respawned: $respawnedCount',
             );
+
+            // Proximity Census
+            int totalProximities = 0;
+            for (final count in state.playerProximityCounts.values) {
+              totalProximities += count;
+            }
+            if (totalProximities > 0) {
+              print('Census: Total proximities this tick: $totalProximities');
+            }
           }
         }
       },
