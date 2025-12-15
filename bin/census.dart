@@ -158,6 +158,26 @@ void main() async {
                   .join(', ');
               print('Census: Territory Control: $summary');
             }
+
+            // Influence Census (Phase 021)
+            if (state.zoneInfluence.isNotEmpty) {
+              final summary = state.zoneInfluence.entries
+                  .map((e) {
+                    final scores = e.value;
+                    // Find top faction
+                    Faction top = Faction.neutral;
+                    double maxScore = -1.0;
+                    scores.forEach((f, s) {
+                      if (s > maxScore) {
+                        maxScore = s;
+                        top = f;
+                      }
+                    });
+                    return '${e.key}: ${top.name} (${maxScore.toStringAsFixed(1)})';
+                  })
+                  .join(', ');
+              print('Census: Area Influence: $summary');
+            }
           }
         }
       },
