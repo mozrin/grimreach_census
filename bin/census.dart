@@ -149,8 +149,14 @@ void main() async {
               print(
                 'Census: Group Stats - Count: ${state.groupCount}, Avg Size: ${state.averageGroupSize.toStringAsFixed(1)}',
               );
-              // Note: Migration pattern logic implies tracking movement direction, but simple summary requested.
-              // "Print aggregated group information".
+            }
+
+            // Territory Census (Phase 020)
+            if (state.zoneControl.isNotEmpty) {
+              final summary = state.zoneControl.entries
+                  .map((e) => '${e.key}: ${e.value.name}')
+                  .join(', ');
+              print('Census: Territory Control: $summary');
             }
           }
         }
