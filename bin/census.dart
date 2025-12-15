@@ -15,6 +15,7 @@ void main() async {
 
     // Census State
     Set<String> previousEntityIds = {};
+    Map<String, Zone> previousPlayerZones = {};
 
     socket.listen(
       (data) {
@@ -25,9 +26,31 @@ void main() async {
 
             int safeCount = 0;
             int wildCount = 0;
+            int flowSafeToWild = 0;
+            int flowWildToSafe = 0;
+
             for (final p in state.players) {
               if (p.zone == Zone.safe) safeCount++;
               if (p.zone == Zone.wilderness) wildCount++;
+
+              if (previousPlayerZones.containsKey(p.id)) {
+                final oldZone = previousPlayerZones[p.id];
+                if (oldZone != p.zone) {
+                  if (oldZone == Zone.safe && p.zone == Zone.wilderness) {
+                    flowSafeToWild++;
+                  } else if (oldZone == Zone.wilderness &&
+                      p.zone == Zone.safe) {
+                    flowWildToSafe++;
+                  }
+                }
+              }
+              previousPlayerZones[p.id] = p.zone;
+            }
+
+            if (flowSafeToWild > 0 || flowWildToSafe > 0) {
+              print(
+                'Census: Flow - Safe->Wild: $flowSafeToWild, Wild->Safe: $flowWildToSafe',
+              );
             }
 
             int eSafe = 0;
