@@ -26,8 +26,15 @@ void main() async {
               if (p.zone == Zone.wilderness) wildCount++;
             }
 
+            int eSafe = 0;
+            int eWild = 0;
+            for (final e in state.entities) {
+              if (e.zone == Zone.safe) eSafe++;
+              if (e.zone == Zone.wilderness) eWild++;
+            }
+
             print(
-              'Census: World update - P: ${state.players.length}, E: ${state.entities.length} (Safe: $safeCount, Wild: $wildCount)',
+              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount), E: ${state.entities.length} (Safe: $eSafe, Wild: $eWild)',
             );
           }
         }
