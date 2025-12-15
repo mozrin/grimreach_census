@@ -19,6 +19,9 @@ void main() async {
         <String, int>{}; // Zone -> Ticks in non-normal state
     final migrationDuration =
         <String, int>{}; // Zone -> Ticks in high pressure state
+    final environmentDuration =
+        <String, int>{}; // State -> Duration (Phase 028)
+    String lastEnvironment = 'calm';
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -257,6 +260,28 @@ void main() async {
                 migrationDuration[zone] = 0;
               }
             });
+
+            // Environment (Phase 028)
+            final currentEnv = state.globalEnvironment;
+            if (currentEnv != lastEnvironment) {
+              environmentDuration[lastEnvironment] = 0;
+              lastEnvironment = currentEnv;
+              print('Census: Environment Cycle Change -> $currentEnv');
+            }
+            environmentDuration[currentEnv] =
+                (environmentDuration[currentEnv] ?? 0) + 1;
+
+            if (environmentDuration[currentEnv]! % 20 == 0) {
+              if (currentEnv == 'storm') {
+                print(
+                  'Census: STORM ACTIVE for ${environmentDuration[currentEnv]} ticks - Spawns HALTED',
+                );
+              } else if (currentEnv == 'fog') {
+                print(
+                  'Census: FOG ACTIVE for ${environmentDuration[currentEnv]} ticks - Movement SLOWED',
+                );
+              }
+            }
 
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
