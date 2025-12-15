@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:grimreach_api/protocol.dart';
 import 'package:grimreach_api/messages.dart';
 import 'package:grimreach_api/message_codec.dart';
+import 'package:grimreach_api/world_state.dart';
 
 void main() async {
   try {
@@ -14,8 +15,15 @@ void main() async {
       (data) {
         if (data is String) {
           final msg = codec.decode(data);
-          print('Census: Echo received: ${msg.type}');
-          exit(0); // Exit after successful echo for this test phase
+          if (msg.type == Protocol.state) {
+            final state = WorldState.fromJson(msg.data);
+            print(
+              'Census: World update - P: ${state.players.length}, E: ${state.entities.length}',
+            );
+            // In real implementation we'd run forever, for testing we might want to exit after receiving some.
+            // But instructions say "runs cleanly with a heartbeat world broadcast".
+            // I'll leave it running, but for verification I'll kill it manually.
+          }
         }
       },
       onError: (e) {
