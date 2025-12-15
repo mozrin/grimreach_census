@@ -165,10 +165,11 @@ void main() async {
               final diff = score - prevScore;
 
               int currentDir = 0;
-              if (diff > 0)
+              if (diff > 0) {
                 currentDir = 1;
-              else if (diff < 0)
+              } else if (diff < 0) {
                 currentDir = -1;
+              }
 
               final lastDir = trendDirection[faction] ?? 0;
 
