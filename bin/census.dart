@@ -17,6 +17,8 @@ void main() async {
         <Faction, int>{}; // 1 = rising, -1 = falling, 0 = stable
     final saturationDuration =
         <String, int>{}; // Zone -> Ticks in non-normal state
+    final migrationDuration =
+        <String, int>{}; // Zone -> Ticks in high pressure state
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -240,6 +242,21 @@ void main() async {
                 'Census: Saturation Alert: ${saturationSummary.join(', ')}',
               );
             }
+
+            // Migration Pressure (Phase 027)
+            state.migrationPressure.forEach((zone, pressure) {
+              if (pressure > 50.0) {
+                migrationDuration[zone] = (migrationDuration[zone] ?? 0) + 1;
+                if (migrationDuration[zone]! % 10 == 0) {
+                  // Log every 10 ticks
+                  print(
+                    'Census: Migration Push Active in $zone ($pressure) for ${migrationDuration[zone]} ticks',
+                  );
+                }
+              } else {
+                migrationDuration[zone] = 0;
+              }
+            });
 
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
