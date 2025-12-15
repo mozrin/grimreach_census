@@ -191,6 +191,19 @@ void main() async {
               }
             });
 
+            // Influence Modifiers (Phase 024)
+            if (state.factionInfluenceModifiers.isNotEmpty) {
+              final mods = state.factionInfluenceModifiers.entries
+                  .map((e) {
+                    String type = e.value > 1.0
+                        ? 'Boosted'
+                        : (e.value < 1.0 ? 'Suppressed' : 'Normal');
+                    return '${e.key.name}: $type (${e.value.toStringAsFixed(2)}x)';
+                  })
+                  .join(', ');
+              print('Census: Influence Modifiers: $mods');
+            }
+
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
               print(
