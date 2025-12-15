@@ -204,6 +204,21 @@ void main() async {
               print('Census: Influence Modifiers: $mods');
             }
 
+            // Faction Pressure (Phase 025)
+            if (state.factionPressure.isNotEmpty) {
+              state.factionPressure.forEach((faction, score) {
+                if (score > 60.0) {
+                  print(
+                    'Census: Pressure Surge: ${faction.name} (${score.toStringAsFixed(1)}) - Accelerating Spawns',
+                  );
+                } else if (score < 40.0) {
+                  print(
+                    'Census: Pressure Drop: ${faction.name} (${score.toStringAsFixed(1)}) - Slowing Spawns',
+                  );
+                }
+              });
+            }
+
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
               print(
