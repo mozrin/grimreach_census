@@ -128,6 +128,15 @@ void main() async {
                 print('Census: Clusters by zone: $summary');
               }
             }
+
+            // Group Census (Phase 018)
+            if (state.groupCount > 0) {
+              print(
+                'Census: Group Stats - Count: ${state.groupCount}, Avg Size: ${state.averageGroupSize.toStringAsFixed(1)}',
+              );
+              // Note: Migration pattern logic implies tracking movement direction, but simple summary requested.
+              // "Print aggregated group information".
+            }
           }
         }
       },
