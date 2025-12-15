@@ -27,7 +27,7 @@ void main() async {
             }
 
             print(
-              'Census: World update - P: ${state.players.length} (Safe: $safeCount, Wild: $wildCount)',
+              'Census: World update - P: ${state.players.length}, E: ${state.entities.length} (Safe: $safeCount, Wild: $wildCount)',
             );
           }
         }
