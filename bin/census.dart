@@ -22,6 +22,8 @@ void main() async {
     final environmentDuration =
         <String, int>{}; // State -> Duration (Phase 028)
     String lastEnvironment = 'calm';
+    final hazardDuration = <String, int>{}; // Zone -> Duration
+    final lastHazards = <String, String>{}; // Zone -> Hazard Name
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -282,6 +284,30 @@ void main() async {
                 );
               }
             }
+
+            // Hazard Cycles (Phase 029)
+            state.zoneHazards.forEach((zone, hazard) {
+              final last = lastHazards[zone] ?? 'none';
+              if (hazard != last) {
+                print('Census: Hazard Cycle Change [$zone] -> $hazard');
+                hazardDuration[zone] = 0;
+                lastHazards[zone] = hazard;
+              }
+              hazardDuration[zone] = (hazardDuration[zone] ?? 0) + 1;
+
+              if (hazard != 'none' && hazardDuration[zone]! % 20 == 0) {
+                String effect = '';
+                if (hazard == 'wildfire') effect = 'suppressing spawns';
+                if (hazard == 'stormSurge') {
+                  effect = 'reducing capacity & pushing migration';
+                }
+                if (hazard == 'toxicFog') effect = 'slowing movement';
+                if (hazard == 'quake') effect = 'reducing influence gain';
+                print(
+                  'Census: Hazard Active [$zone]: $hazard for ${hazardDuration[zone]} ticks ($effect)',
+                );
+              }
+            });
 
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
