@@ -6,6 +6,7 @@ import 'package:grimreach_api/world_state.dart';
 import 'package:grimreach_api/zone.dart';
 import 'package:grimreach_api/entity_type.dart';
 import 'package:grimreach_api/faction.dart';
+import 'package:grimreach_api/season.dart';
 
 void main() async {
   try {
@@ -24,6 +25,8 @@ void main() async {
     String lastEnvironment = 'calm';
     final hazardDuration = <String, int>{}; // Zone -> Duration
     final lastHazards = <String, String>{}; // Zone -> Hazard Name
+    Season lastSeason = Season.spring;
+    int seasonDuration = 0;
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -308,6 +311,37 @@ void main() async {
                 );
               }
             });
+
+            // Seasonal Cycles (Phase 030)
+            if (state.currentSeason != lastSeason) {
+              print(
+                'Census: Season Cycle Change -> ${state.currentSeason.name}',
+              );
+              lastSeason = state.currentSeason;
+              seasonDuration = 0;
+            }
+            seasonDuration++;
+
+            if (seasonDuration % 20 == 0) {
+              String effect = '';
+              switch (state.currentSeason) {
+                case Season.spring:
+                  effect = 'Increasing Spawn Rate (+50%)';
+                  break;
+                case Season.summer:
+                  effect = 'Boosting Influence Gain (+25%)';
+                  break;
+                case Season.autumn:
+                  effect = 'Reducing Pressure (Decay x2)';
+                  break;
+                case Season.winter:
+                  effect = 'Slowing Movement (-25%)';
+                  break;
+              }
+              print(
+                'Census: Season Active: ${state.currentSeason.name} for ${seasonDuration} ticks ($effect)',
+              );
+            }
 
             // Shift Volatility Census (Phase 022)
             if (state.recentShifts.isNotEmpty) {
