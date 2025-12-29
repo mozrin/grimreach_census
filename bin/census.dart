@@ -7,6 +7,7 @@ import 'package:grimreach_api/zone.dart';
 import 'package:grimreach_api/entity_type.dart';
 import 'package:grimreach_api/faction.dart';
 import 'package:grimreach_api/season.dart';
+import 'package:grimreach_api/lunar_phase.dart';
 
 void main() async {
   try {
@@ -27,6 +28,8 @@ void main() async {
     final lastHazards = <String, String>{}; // Zone -> Hazard Name
     Season lastSeason = Season.spring;
     int seasonDuration = 0;
+    LunarPhase lastLunarPhase = LunarPhase.newMoon;
+    int lunarDuration = 0;
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -339,7 +342,38 @@ void main() async {
                   break;
               }
               print(
-                'Census: Season Active: ${state.currentSeason.name} for ${seasonDuration} ticks ($effect)',
+                'Census: Season Active: ${state.currentSeason.name} for $seasonDuration ticks ($effect)',
+              );
+            }
+
+            // Phase 031: Lunar Cycles
+            if (state.currentLunarPhase != lastLunarPhase) {
+              print(
+                'Census: Lunar Phase Change -> ${state.currentLunarPhase.name.toUpperCase()}',
+              );
+              lastLunarPhase = state.currentLunarPhase;
+              lunarDuration = 0;
+            }
+            lunarDuration++;
+
+            if (lunarDuration % 20 == 0) {
+              String effect = '';
+              switch (state.currentLunarPhase) {
+                case LunarPhase.newMoon:
+                  effect = 'Reduced Influence Gain (x0.75)';
+                  break;
+                case LunarPhase.waxing:
+                  effect = 'Increased Migration Pressure (push)';
+                  break;
+                case LunarPhase.fullMoon:
+                  effect = 'Reflected: +Spawn Rate, +Hazards Effect';
+                  break;
+                case LunarPhase.waning:
+                  effect = 'Increased Influence Decay (x1.25)';
+                  break;
+              }
+              print(
+                'Census: Lunar Phase Active: ${state.currentLunarPhase.name} for $lunarDuration ticks ($effect)',
               );
             }
 
