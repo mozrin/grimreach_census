@@ -8,6 +8,7 @@ import 'package:grimreach_api/entity_type.dart';
 import 'package:grimreach_api/faction.dart';
 import 'package:grimreach_api/season.dart';
 import 'package:grimreach_api/lunar_phase.dart';
+import 'package:grimreach_api/constellation.dart';
 
 void main() async {
   try {
@@ -30,6 +31,8 @@ void main() async {
     int seasonDuration = 0;
     LunarPhase lastLunarPhase = LunarPhase.newMoon;
     int lunarDuration = 0;
+    Constellation lastConstellation = Constellation.wanderer;
+    int constellationDuration = 0;
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -374,6 +377,37 @@ void main() async {
               }
               print(
                 'Census: Lunar Phase Active: ${state.currentLunarPhase.name} for $lunarDuration ticks ($effect)',
+              );
+            }
+
+            // Phase 032: Constellation Cycles
+            if (state.currentConstellation != lastConstellation) {
+              print(
+                'Census: Constellation Change -> ${state.currentConstellation.name.toUpperCase()}',
+              );
+              lastConstellation = state.currentConstellation;
+              constellationDuration = 0;
+            }
+            constellationDuration++;
+
+            if (constellationDuration % 20 == 0) {
+              String effect = '';
+              switch (state.currentConstellation) {
+                case Constellation.wanderer:
+                  effect = 'Flowing: ++Migration Pr (Safe & Wild)';
+                  break;
+                case Constellation.crown:
+                  effect = 'Ruling: +Order Influence Gain';
+                  break;
+                case Constellation.serpent:
+                  effect = 'Coiling: +Chaos Pressure';
+                  break;
+                case Constellation.forge:
+                  effect = 'Striking: +Hazard Intensity (Influence)';
+                  break;
+              }
+              print(
+                'Census: Constellation Active: ${state.currentConstellation.name} for $constellationDuration ticks ($effect)',
               );
             }
 
