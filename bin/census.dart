@@ -9,6 +9,7 @@ import 'package:grimreach_api/faction.dart';
 import 'package:grimreach_api/season.dart';
 import 'package:grimreach_api/lunar_phase.dart';
 import 'package:grimreach_api/constellation.dart';
+import 'package:grimreach_api/harmonic_state.dart';
 
 void main() async {
   try {
@@ -33,6 +34,8 @@ void main() async {
     int lunarDuration = 0;
     Constellation lastConstellation = Constellation.wanderer;
     int constellationDuration = 0;
+    HarmonicState lastHarmonicState = HarmonicState.nullState;
+    int harmonicDuration = 0;
 
     // Connect
     final socket = await WebSocket.connect('ws://localhost:8080/ws');
@@ -408,6 +411,37 @@ void main() async {
               }
               print(
                 'Census: Constellation Active: ${state.currentConstellation.name} for $constellationDuration ticks ($effect)',
+              );
+            }
+
+            // Phase 033: Harmonic Cycles
+            if (state.currentHarmonicState != lastHarmonicState) {
+              print(
+                'Census: Harmonic Shift -> ${state.currentHarmonicState.name.toUpperCase()}',
+              );
+              lastHarmonicState = state.currentHarmonicState;
+              harmonicDuration = 0;
+            }
+            harmonicDuration++;
+
+            if (harmonicDuration % 20 == 0) {
+              String effect = '';
+              switch (state.currentHarmonicState) {
+                case HarmonicState.resonance:
+                  effect = 'Resonance: +Global Influence Gain';
+                  break;
+                case HarmonicState.discordance:
+                  effect = 'Discordance: +Chaos Pressure';
+                  break;
+                case HarmonicState.amplification:
+                  effect = 'Amplification: ++Hazard Intensity';
+                  break;
+                case HarmonicState.nullState:
+                  effect = 'Null State: -Migration Flow';
+                  break;
+              }
+              print(
+                'Census: Harmonic State Active: ${state.currentHarmonicState.name} for $harmonicDuration ticks ($effect)',
               );
             }
 
